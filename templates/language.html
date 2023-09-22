@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            <p class="home_title eng">
+                Choose your Language.
+            </p>
+            <p class="home_title hin">
+                अपनी भाषा चुनिए
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="/question/fever/english/2">English</a>
+                <a class="lang_button" href="/question/fever/hindi/2">हिंदी</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function executeAnnyang() {
+            if (annyang) {
+                const commands = {
+                    'english': () => { window.location.href = '/question/fever/english/2'; },
+                    'hindi': () => { window.location.href = '/question/fever/hindi/2'; }
+                };
+                annyang.addCommands(commands);
+
+                annyang.start();
+
+                const listeningTimeout = 10000; 
+                setTimeout(function() {
+                    annyang.abort(); 
+                }, listeningTimeout);
+            }
+        }
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/lang_audio', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log('Audio played');
+
+                    executeAnnyang();
+                }
+            };
+            xhr.send();
+        });
+    </script>
+{% endblock %}

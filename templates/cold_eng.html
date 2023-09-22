@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            <p class="home_title eng">
+                Do you have cold?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="/question/nose/english/1">Yes</a>
+                <a class="lang_button" href="/question/nose/english/0">No</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/question/audio/cold/eng_audio', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log('Audio played');
+                }
+            };
+            xhr.send();
+        });
+    </script>
+{% endblock %}

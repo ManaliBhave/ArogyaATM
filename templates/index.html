@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            <p class="home_title eng">
+                Welcome to Arogya ATM!!!
+            </p>
+            <p class="home_title hin">
+                आरोग्य एटीएम में आपका स्वागत है!!!
+            </p>
+            <a class="home_button" href="/question/phone">Start</a>
+        </div>
+    </div>
+    
+    <script>
+        function executeAnnyang() {
+            if (annyang) {
+                const commands = {
+                    'start': () => { window.location.href = '/question/phone'; }
+                };
+                annyang.addCommands(commands);
+
+                annyang.start();
+
+                const listeningTimeout = 10000; 
+                setTimeout(function() {
+                    annyang.abort(); 
+                }, listeningTimeout);
+            }
+        }
+    
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/wlcm_audio', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log('Audio played');
+                    
+                    executeAnnyang();
+                }
+            };
+            xhr.send();
+        });
+    </script>
+{% endblock %}

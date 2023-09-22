@@ -1,0 +1,9 @@
+{
+    "params":
+    {
+        "local_server":"True",
+        "local_uri":"mysql://root:@localhost/genzero",
+        "prod_uri":"mysql://root:@localhost/genzero"
+    }
+    
+}

@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            <p class="home_title eng">
+                क्या आपको बुखार है?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="/question/cold/hindi/1">हाँ</a>
+                <a class="lang_button" href="/question/cold/hindi/0">नहीं</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function executeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'hi-IN';
+        
+                recognition.onresult = function(event) {
+                    const result = event.results[0][0].transcript.toLowerCase();
+        
+                    if (result === 'हाँ' || result === 'हां') {
+                        window.location.href = '/question/cold/hindi/1';
+                    } else if (result === 'नहीं') {
+                        window.location.href = '/question/cold/hindi/0';
+                    }
+                };
+        
+                recognition.start();
+        
+                const listeningTimeout = 10000;
+                setTimeout(function() {
+                    recognition.stop();
+                }, listeningTimeout);
+            }
+        }
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/question/audio/fever/hin_audio', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log('Audio played');
+
+                    executeSpeechRecognition();
+                }
+            };
+            xhr.send();
+        });
+    </script>
+{% endblock %}
