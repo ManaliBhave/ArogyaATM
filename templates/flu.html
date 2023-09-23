@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            {% if lang == 'english' %}
+            <p class="home_title eng">
+                Are you currently experiencing flu-like symptoms like fever, cold, body ache, fatigue, etc?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="#">Yes</a>
+                <a class="lang_button" href="/question/resp/english/0">No</a>
+            </div>
+            {% else %}
+            <p class="home_title eng">
+                क्या आप वर्तमान में बुखार, सर्दी, शरीर में दर्द, थकान आदि जैसे फ्लू जैसे लक्षणों का अनुभव कर रहे हैं?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="#">हाँ</a>
+                <a class="lang_button" href="/question/resp/hindi/0">नहीं</a>
+            </div>
+            {% endif %}
+            <input type="text" hidden id="language" value="{{ lang }}">
+        </div>
+    </div>
+
+    <script>
+        function executeAnnyang() {
+            if (annyang) {
+                const commands = {
+                    'yes': () => { window.location.href = '#'; },
+                    'no': () => { window.location.href = '/question/resp/english/0'; }
+                };
+                annyang.addCommands(commands);
+
+                annyang.start();
+
+                const listeningTimeout = 10000; 
+                setTimeout(function() {
+                    annyang.abort(); 
+                }, listeningTimeout);
+            }
+        }
+
+        function executeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'hi-IN';
+        
+                recognition.onresult = function(event) {
+                    const result = event.results[0][0].transcript.toLowerCase();
+        
+                    if (result === 'हाँ' || result === 'हां') {
+                        window.location.href = '#';
+                    } else if (result === 'नहीं') {
+                        window.location.href = '/question/resp/hindi/0';
+                    }
+                };
+        
+                recognition.start();
+        
+                const listeningTimeout = 10000;
+                setTimeout(function() {
+                    recognition.stop();
+                }, listeningTimeout);
+            }
+        }
+
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            var language_ans = document.getElementById('language').value;
+            console.log(language_ans)
+            if(language_ans == "english"){
+                xhr.open('POST', '/question/audio/flu/eng_audio', true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Audio played');
+
+                        executeAnnyang();
+                    }
+                };
+                xhr.send();
+            }
+            else{
+                xhr.open('POST', '/question/audio/flu/hin_audio', true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Audio played');
+
+                        executeSpeechRecognition();
+                    }
+                };
+                xhr.send();
+            }
+        });
+    </script>
+{% endblock %}

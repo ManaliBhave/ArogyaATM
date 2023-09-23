@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="home_section">
+        <div class="home_title_wrap">
+            {% if lang == 'english' %}
+            <p class="home_title eng">
+                Are you currently experiencing any skin problems like rashes, itching, skin eruptions, etc?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="/question/itch/english/1">Yes</a>
+                <a class="lang_button" href="/question/digest/english/00000">No</a>
+            </div>
+            {% else %}
+            <p class="home_title eng">
+                क्या आप वर्तमान में किसी त्वचा संबंधी समस्या जैसे चकत्ते, खुजली, त्वचा पर दाने आदि का अनुभव कर रहे हैं?
+            </p>
+            <div class="lang_button_wrap">
+                <a class="lang_button" href="/question/itch/hindi/1">हाँ</a>
+                <a class="lang_button" href="/question/digest/hindi/00000">नहीं</a>
+            </div>
+            {% endif %}
+            <input type="text" hidden id="language" value="{{ lang }}">
+        </div>
+    </div>
+
+    <script>
+        function executeAnnyang() {
+            if (annyang) {
+                const commands = {
+                    'yes': () => { window.location.href = '/question/itch/english/1'; },
+                    'no': () => { window.location.href = '/question/digest/english/00000'; }
+                };
+                annyang.addCommands(commands);
+
+                annyang.start();
+
+                const listeningTimeout = 10000; 
+                setTimeout(function() {
+                    annyang.abort(); 
+                }, listeningTimeout);
+            }
+        }
+
+        function executeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'hi-IN';
+        
+                recognition.onresult = function(event) {
+                    const result = event.results[0][0].transcript.toLowerCase();
+        
+                    if (result === 'हाँ' || result === 'हां') {
+                        window.location.href = '/question/itch/hindi/1';
+                    } else if (result === 'नहीं') {
+                        window.location.href = '/question/digest/hindi/00000';
+                    }
+                };
+        
+                recognition.start();
+        
+                const listeningTimeout = 10000;
+                setTimeout(function() {
+                    recognition.stop();
+                }, listeningTimeout);
+            }
+        }
+
+        window.addEventListener('load', function() {
+            var xhr = new XMLHttpRequest();
+            var language_ans = document.getElementById('language').value;
+            console.log(language_ans)
+            if(language_ans == "english"){
+                xhr.open('POST', '/question/audio/skin/eng_audio', true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Audio played');
+
+                        executeAnnyang();
+                    }
+                };
+                xhr.send();
+            }
+            else{
+                xhr.open('POST', '/question/audio/skin/hin_audio', true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Audio played');
+
+                        executeSpeechRecognition();
+                    }
+                };
+                xhr.send();
+            }
+        });
+    </script>
+{% endblock %}
